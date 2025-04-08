@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/olzzhas/qrent/pkg/validator"
 	"time"
 )
 
@@ -17,6 +18,10 @@ type Station struct {
 type StationModel struct {
 	DB    *sql.DB
 	Redis *redis.Client
+}
+
+func ValidateStation(v *validator.Validator, s *Station) {
+	v.Check(s.OrgID > 0, "org_id", "must be a positive integer")
 }
 
 func (m StationModel) Insert(station *Station) error {

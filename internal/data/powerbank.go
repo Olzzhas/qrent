@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/olzzhas/qrent/pkg/validator"
 	"time"
 )
 
@@ -26,6 +27,13 @@ type Powerbank struct {
 type PowerbankModel struct {
 	DB    *sql.DB
 	Redis *redis.Client
+}
+
+func ValidatePowerbank(v *validator.Validator, p *Powerbank) {
+	v.Check(p.CurrentStationID > 0, "current_station_id", "must be a positive integer")
+	if !p.Status.IsValid() {
+		v.AddError("status", "must be one of: rented, available, charging")
+	}
 }
 
 func (ps PowerbankStatus) IsValid() bool {

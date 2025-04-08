@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/olzzhas/qrent/internal/data"
+	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
 )
 
@@ -43,6 +44,13 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 
 	if !p.Status.IsValid() {
 		app.badRequestResponse(w, r, errors.New("invalid powerbank status"))
+		return
+	}
+
+	v := validator.New()
+	data.ValidatePowerbank(v, p)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
 		return
 	}
 
@@ -92,6 +100,13 @@ func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Re
 			return
 		}
 		p.Status = newStatus
+	}
+
+	v := validator.New()
+	data.ValidatePowerbank(v, p)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 
 	if err := app.models.Powerbank.Update(p); err != nil {

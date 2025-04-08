@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/olzzhas/qrent/internal/data"
+	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
 )
 
@@ -29,7 +30,7 @@ func (app *application) CreateOrganizationHandler(w http.ResponseWriter, r *http
 		Name     string `json:"name"`
 		Location string `json:"location"`
 	}
-	
+
 	if err := app.readJSON(w, r, &input); err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -40,7 +41,13 @@ func (app *application) CreateOrganizationHandler(w http.ResponseWriter, r *http
 		Location: input.Location,
 	}
 
-	// Вставка новой организации в БД.
+	v := validator.New()
+	data.ValidateOrganization(v, org)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	if err := app.models.Organization.Insert(org); err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -80,6 +87,13 @@ func (app *application) UpdateOrganizationHandler(w http.ResponseWriter, r *http
 	}
 	if input.Location != nil {
 		org.Location = *input.Location
+	}
+
+	v := validator.New()
+	data.ValidateOrganization(v, org)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 
 	if err := app.models.Organization.Update(org); err != nil {

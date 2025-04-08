@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
 
 	"github.com/olzzhas/qrent/internal/data"
@@ -39,6 +40,13 @@ func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Requ
 		OrgID: input.OrgID,
 	}
 
+	v := validator.New()
+	data.ValidateStation(v, station)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
+	}
+
 	if err := app.models.Station.Insert(station); err != nil {
 		app.serverErrorResponse(w, r, err)
 		return
@@ -74,6 +82,13 @@ func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Requ
 
 	if input.OrgID != nil {
 		station.OrgID = *input.OrgID
+	}
+
+	v := validator.New()
+	data.ValidateStation(v, station)
+	if !v.Valid() {
+		app.failedValidationResponse(w, r, v.Errors)
+		return
 	}
 
 	if err := app.models.Station.Update(station); err != nil {
