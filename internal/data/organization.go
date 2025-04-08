@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/olzzhas/qrent/pkg/validator"
 	"time"
 )
 
@@ -18,6 +19,11 @@ type Organization struct {
 type OrganizationModel struct {
 	DB    *sql.DB
 	Redis *redis.Client
+}
+
+func ValidateOrganization(v *validator.Validator, org *Organization) {
+	v.Check(org.Name != "", "name", "must be provided")
+	v.Check(org.Location != "", "location", "must be provided")
 }
 
 func (m OrganizationModel) Insert(org *Organization) error {
