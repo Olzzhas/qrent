@@ -4,8 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"expvar"
 	"flag"
+	"fmt"
+	_ "github.com/lib/pq"
 	"log"
 	"os"
 	"runtime"
@@ -50,6 +53,20 @@ type application struct {
 	mongoClient *mongo.Client
 }
 
+// @title QRent API
+// @version 1.0
+// @description API для работы с организациями, повербанками и станциями.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:4000
+// @BasePath /v1
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Ошибка загрузки .env файла: ", err)
@@ -132,6 +149,10 @@ func main() {
 }
 
 func openDB(cfg config) (*sql.DB, error) {
+	if cfg.db.dsn == "" {
+		return nil, errors.New("DB_DSN is not set in the environment")
+	}
+
 	db, err := sql.Open("postgres", cfg.db.dsn)
 	if err != nil {
 		return nil, err
@@ -155,8 +176,13 @@ func openDB(cfg config) (*sql.DB, error) {
 
 // Подключение к Redis
 func redisConnect() (*redis.Client, error) {
+	addr := getEnv("REDIS_ADDR", "")
+	if addr == "" {
+		return nil, errors.New("REDIS_ADDR is not set in the environment")
+	}
+
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     getEnv("REDIS_ADDR", "redis:6379"),
+		Addr:     addr,
 		Password: getEnv("REDIS_PASSWORD", ""),
 		DB:       getEnvAsInt("REDIS_DB", 0),
 	})
@@ -168,20 +194,26 @@ func redisConnect() (*redis.Client, error) {
 
 // Подключение к MongoDB
 func connectMongoDB() (*mongo.Client, error) {
+	mongoURI := getEnv("MONGO_URI", "")
+	if mongoURI == "" {
+		return nil, errors.New("MONGO_URI is not set in the environment")
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017/sporthub_logs")
+
 	clientOptions := options.Client().ApplyURI(mongoURI)
 	clientOptions.SetAuth(options.Credential{
-		Username:      getEnv("MONGO_USERNAME", "olzzhas"),
-		Password:      getEnv("MONGO_PASSWORD", "Olzhas040404"),
-		AuthMechanism: getEnv("MONGO_AUTH_MECHANISM", "SCRAM-SHA-256"),
+		Username:      getEnv("MONGO_USERNAME", ""),
+		Password:      getEnv("MONGO_PASSWORD", ""),
+		AuthMechanism: getEnv("MONGO_AUTH_MECHANISM", ""),
 	})
 	clientOptions.SetWriteConcern(writeconcern.New(writeconcern.WMajority()))
 	client, err := mongo.Connect(ctx, clientOptions)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = client.Ping(ctx, nil); err != nil {
 		return nil, err
 	}
@@ -190,8 +222,19 @@ func connectMongoDB() (*mongo.Client, error) {
 
 // Подключение к RabbitMQ
 func connectRabbitMQ() (*amqp.Connection, error) {
-	rabbitURL := getEnv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
-	return amqp.Dial(rabbitURL)
+	rabbitURL := os.Getenv("RABBITMQ_URL")
+
+	var conn *amqp.Connection
+	var err error
+	for i := 0; i < 5; i++ {
+		conn, err = amqp.Dial(rabbitURL)
+		if err == nil {
+			return conn, nil
+		}
+		log.Printf("Cannot connect to RabbitMQ: %v (retry in 2s)", err)
+		time.Sleep(2 * time.Second)
+	}
+	return nil, fmt.Errorf("failed to connect after 5 attempts: %w", err)
 }
 
 func (app *application) consumeLogsFromRabbitMQ() {
@@ -230,7 +273,7 @@ func (app *application) consumeLogsFromRabbitMQ() {
 		}
 
 		// Динамически выбираем коллекцию
-		mongoCollection := app.mongoClient.Database("sporthub_logs").Collection(logMessage.Collection)
+		mongoCollection := app.mongoClient.Database("qrent_logs").Collection(logMessage.Collection)
 
 		_, err = mongoCollection.InsertOne(context.TODO(), logMessage)
 		if err != nil {

@@ -1,0 +1,104 @@
+services:
+  qrent:
+    build: .
+    container_name: qrent_app
+    ports:
+      - "4000:4000"
+    env_file:
+      - .env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      mongo:
+        condition: service_started
+    networks:
+      - dev
+
+  postgres:
+    image: postgres:13-alpine
+    container_name: qrent_postgres
+    environment:
+      POSTGRES_USER: olzzhas
+      POSTGRES_PASSWORD: Olzhas040404
+      POSTGRES_DB: qrent_prod
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U olzzhas -d qrent_prod"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dev
+
+  redis:
+    image: redis:6-alpine
+    container_name: qrent_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - dev
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: qrent_rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - dev
+
+  mongo:
+    image: mongo:4.4-bionic
+    container_name: qrent_mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    env_file:
+      - .env
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_INITDB_ROOT_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_INITDB_ROOT_PASSWORD}"
+    networks:
+      - dev
+  
+  swagger:
+    image: golang:1.22-alpine
+    container_name: qrent_swagger
+    working_dir: /app
+    volumes:
+      - .:/app
+    command: [ "sh", "-c", "go install github.com/swaggo/swag/cmd/swag@latest && swag init" ]
+    depends_on:
+      - qrent
+    networks:
+      - dev
+
+  migrate:
+    image: migrate/migrate:v4.15.2
+    container_name: qrent_migrate
+    volumes:
+      - ./migrations:/migrations
+    entrypoint: ["/bin/sh", "-c", "sleep 10 && migrate -path /migrations -database postgres://olzzhas:Olzhas040404@postgres:5432/qrent_prod?sslmode=disable up"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - dev
+
+volumes:
+  pgdata:
+  mongodata:
+
+networks:
+  dev:

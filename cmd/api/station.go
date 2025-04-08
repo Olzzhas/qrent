@@ -7,6 +7,17 @@ import (
 	"github.com/olzzhas/qrent/internal/data"
 )
 
+// GetStationHandler godoc
+// @Summary Получает станцию по ID
+// @Description Возвращает станцию по переданному идентификатору
+// @Tags stations
+// @Accept json
+// @Produce json
+// @Param id path int true "Station ID"
+// @Success 200 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /stations/{id} [get]
 func (app *application) GetStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -26,6 +37,17 @@ func (app *application) GetStationHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
+// CreateStationHandler godoc
+// @Summary Создаёт новую станцию
+// @Description Создаёт станцию, привязанную к организации (org_id)
+// @Tags stations
+// @Accept json
+// @Produce json
+// @Param station body struct{ OrgID int } true "Station Data"
+// @Success 201 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Router /stations [post]
 func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		OrgID int `json:"org_id"`
@@ -58,6 +80,19 @@ func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// UpdateStationHandler godoc
+// @Summary Обновляет станцию по ID
+// @Description Обновляет данные станции. Обновляются только переданные поля.
+// @Tags stations
+// @Accept json
+// @Produce json
+// @Param id path int true "Station ID"
+// @Param station body struct{ OrgID *int } true "Station Data"
+// @Success 200 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
+// @Router /stations/{id} [put]
 func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -102,6 +137,17 @@ func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// DeleteStationHandler godoc
+// @Summary Удаляет станцию по ID
+// @Description Удаляет станцию с заданным идентификатором
+// @Tags stations
+// @Accept json
+// @Produce json
+// @Param id path int true "Station ID"
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Router /stations/{id} [delete]
 func (app *application) DeleteStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -120,6 +166,15 @@ func (app *application) DeleteStationHandler(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+// ListStationHandler godoc
+// @Summary Возвращает список станций
+// @Description Возвращает все станции
+// @Tags stations
+// @Accept json
+// @Produce json
+// @Success 200 {object} StationListResponse
+// @Failure 500 {object} map[string]string
+// @Router /stations [get]
 func (app *application) ListStationHandler(w http.ResponseWriter, r *http.Request) {
 	stations, err := app.models.Station.List()
 	if err != nil {
