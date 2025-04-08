@@ -14,9 +14,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Powerbank ID"
-// @Success 200 {object} envelope{"powerbank":data.Powerbank}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} PowerbankResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /powerbanks/{id} [get]
 func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -45,13 +45,13 @@ func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Reque
 // @Produce json
 //
 //	@Param powerbank body struct{
-//	   CurrentStationID int ` + "`json:\"current_station_id\"`" + `
-//	   Status string ` + "`json:\"status\"`" + `
+//	    CurrentStationID int   ` + "`json:\"current_station_id\"`" + `
+//	    Status           string` + "`json:\"status\"`" + `
 //	} true "Powerbank Data"
 //
-// @Success 201 {object} envelope{"powerbank":data.Powerbank}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 201 {object} PowerbankResponse
+// @Failure 400 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /powerbanks [post]
 func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -102,14 +102,14 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 // @Param id path int true "Powerbank ID"
 //
 //	@Param powerbank body struct{
-//	   CurrentStationID *int ` + "`json:\"current_station_id\"`" + `
-//	   Status *string ` + "`json:\"status\"`" + `
+//	    CurrentStationID *int    ` + "`json:\"current_station_id\"`" + `
+//	    Status           *string ` + "`json:\"status\"`" + `
 //	} true "Powerbank Data"
 //
-// @Success 200 {object} envelope{"powerbank":data.Powerbank}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 200 {object} PowerbankResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /powerbanks/{id} [put]
 func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -172,9 +172,9 @@ func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Re
 // @Accept json
 // @Produce json
 // @Param id path int true "Powerbank ID"
-// @Success 200 {object} envelope{"message":string}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /powerbanks/{id} [delete]
 func (app *application) DeletePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -200,8 +200,8 @@ func (app *application) DeletePowerbankHandler(w http.ResponseWriter, r *http.Re
 // @Tags powerbanks
 // @Accept json
 // @Produce json
-// @Success 200 {object} envelope{"powerbanks":[]data.Powerbank}
-// @Failure 500 {object} envelope{"error":string}
+// @Success 200 {object} PowerbankListResponse
+// @Failure 500 {object} map[string]string
 // @Router /powerbanks [get]
 func (app *application) ListPowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	powerbanks, err := app.models.Powerbank.List()

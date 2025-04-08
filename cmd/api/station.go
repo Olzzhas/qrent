@@ -14,9 +14,9 @@ import (
 // @Accept json
 // @Produce json
 // @Param id path int true "Station ID"
-// @Success 200 {object} envelope{"station":data.Station}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /stations/{id} [get]
 func (app *application) GetStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -44,9 +44,9 @@ func (app *application) GetStationHandler(w http.ResponseWriter, r *http.Request
 // @Accept json
 // @Produce json
 // @Param station body struct{ OrgID int } true "Station Data"
-// @Success 201 {object} envelope{"station":data.Station}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 201 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /stations [post]
 func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -88,10 +88,10 @@ func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Requ
 // @Produce json
 // @Param id path int true "Station ID"
 // @Param station body struct{ OrgID *int } true "Station Data"
-// @Success 200 {object} envelope{"station":data.Station}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 200 {object} StationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /stations/{id} [put]
 func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -144,9 +144,9 @@ func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Requ
 // @Accept json
 // @Produce json
 // @Param id path int true "Station ID"
-// @Success 200 {object} envelope{"message":string}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /stations/{id} [delete]
 func (app *application) DeleteStationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -172,8 +172,8 @@ func (app *application) DeleteStationHandler(w http.ResponseWriter, r *http.Requ
 // @Tags stations
 // @Accept json
 // @Produce json
-// @Success 200 {object} envelope{"stations":[]data.Station}
-// @Failure 500 {object} envelope{"error":string}
+// @Success 200 {object} StationListResponse
+// @Failure 500 {object} map[string]string
 // @Router /stations [get]
 func (app *application) ListStationHandler(w http.ResponseWriter, r *http.Request) {
 	stations, err := app.models.Station.List()

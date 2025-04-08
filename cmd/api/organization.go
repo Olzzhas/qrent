@@ -13,9 +13,9 @@ import (
 // @Accept  json
 // @Produce  json
 // @Param id path int true "Organization ID"
-// @Success 200 {object} envelope{"organization":data.Organization}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} OrganizationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /organizations/{id} [get]
 func (app *application) GetOrganizationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -43,9 +43,9 @@ func (app *application) GetOrganizationHandler(w http.ResponseWriter, r *http.Re
 // @Accept json
 // @Produce json
 // @Param organization body struct{ Name string; Location string } true "Organization Data"
-// @Success 201 {object} envelope{"organization":data.Organization}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 201 {object} OrganizationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /organizations [post]
 func (app *application) CreateOrganizationHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
@@ -89,15 +89,15 @@ func (app *application) CreateOrganizationHandler(w http.ResponseWriter, r *http
 // @Produce json
 // @Param id path int true "Organization ID"
 //
-//	@Param organization body struct{
-//	   Name *string `json:"name"`
-//	   Location *string `json:"location"`
+//	@Param organization body struct {
+//	    Name     *string ` + "`json:\"name\"`" + `
+//	    Location *string ` + "`json:\"location\"`" + `
 //	} true "Organization Data"
 //
-// @Success 200 {object} envelope{"organization":data.Organization}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
-// @Failure 422 {object} envelope{"error":map[string]string}
+// @Success 200 {object} OrganizationResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
+// @Failure 422 {object} map[string]string
 // @Router /organizations/{id} [put]
 func (app *application) UpdateOrganizationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -154,9 +154,9 @@ func (app *application) UpdateOrganizationHandler(w http.ResponseWriter, r *http
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-// @Success 200 {object} envelope{"message":string}
-// @Failure 400 {object} envelope{"error":string}
-// @Failure 404 {object} envelope{"error":string}
+// @Success 200 {object} MessageResponse
+// @Failure 400 {object} map[string]string
+// @Failure 404 {object} map[string]string
 // @Router /organizations/{id} [delete]
 func (app *application) DeleteOrganizationHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -182,8 +182,8 @@ func (app *application) DeleteOrganizationHandler(w http.ResponseWriter, r *http
 // @Tags organizations
 // @Accept json
 // @Produce json
-// @Success 200 {object} envelope{"organizations":[]data.Organization}
-// @Failure 500 {object} envelope{"error":string}
+// @Success 200 {object} OrganizationListResponse
+// @Failure 500 {object} map[string]string
 // @Router /organizations [get]
 func (app *application) ListOrganizationHandler(w http.ResponseWriter, r *http.Request) {
 	orgs, err := app.models.Organization.List()
