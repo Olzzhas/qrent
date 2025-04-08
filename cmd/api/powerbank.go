@@ -7,6 +7,17 @@ import (
 	"net/http"
 )
 
+// GetPowerbankHandler godoc
+// @Summary Получает повербанк по ID
+// @Description Возвращает повербанк по переданному идентификатору
+// @Tags powerbanks
+// @Accept json
+// @Produce json
+// @Param id path int true "Powerbank ID"
+// @Success 200 {object} envelope{"powerbank":data.Powerbank}
+// @Failure 400 {object} envelope{"error":string}
+// @Failure 404 {object} envelope{"error":string}
+// @Router /powerbanks/{id} [get]
 func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -26,6 +37,22 @@ func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+// CreatePowerbankHandler godoc
+// @Summary Создаёт новый повербанк
+// @Description Создаёт повербанк с заданными current_station_id и status
+// @Tags powerbanks
+// @Accept json
+// @Produce json
+//
+//	@Param powerbank body struct{
+//	   CurrentStationID int ` + "`json:\"current_station_id\"`" + `
+//	   Status string ` + "`json:\"status\"`" + `
+//	} true "Powerbank Data"
+//
+// @Success 201 {object} envelope{"powerbank":data.Powerbank}
+// @Failure 400 {object} envelope{"error":string}
+// @Failure 422 {object} envelope{"error":map[string]string}
+// @Router /powerbanks [post]
 func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		CurrentStationID int    `json:"current_station_id"`
@@ -66,6 +93,24 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 	}
 }
 
+// UpdatePowerbankHandler godoc
+// @Summary Обновляет повербанк по ID
+// @Description Обновляет данные повербанка. Обновляются только переданные поля.
+// @Tags powerbanks
+// @Accept json
+// @Produce json
+// @Param id path int true "Powerbank ID"
+//
+//	@Param powerbank body struct{
+//	   CurrentStationID *int ` + "`json:\"current_station_id\"`" + `
+//	   Status *string ` + "`json:\"status\"`" + `
+//	} true "Powerbank Data"
+//
+// @Success 200 {object} envelope{"powerbank":data.Powerbank}
+// @Failure 400 {object} envelope{"error":string}
+// @Failure 404 {object} envelope{"error":string}
+// @Failure 422 {object} envelope{"error":map[string]string}
+// @Router /powerbanks/{id} [put]
 func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -120,6 +165,17 @@ func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Re
 	}
 }
 
+// DeletePowerbankHandler godoc
+// @Summary Удаляет повербанк по ID
+// @Description Удаляет повербанк с заданным идентификатором
+// @Tags powerbanks
+// @Accept json
+// @Produce json
+// @Param id path int true "Powerbank ID"
+// @Success 200 {object} envelope{"message":string}
+// @Failure 400 {object} envelope{"error":string}
+// @Failure 404 {object} envelope{"error":string}
+// @Router /powerbanks/{id} [delete]
 func (app *application) DeletePowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -138,6 +194,15 @@ func (app *application) DeletePowerbankHandler(w http.ResponseWriter, r *http.Re
 	}
 }
 
+// ListPowerbankHandler godoc
+// @Summary Возвращает список повербанков
+// @Description Возвращает все повербанки
+// @Tags powerbanks
+// @Accept json
+// @Produce json
+// @Success 200 {object} envelope{"powerbanks":[]data.Powerbank}
+// @Failure 500 {object} envelope{"error":string}
+// @Router /powerbanks [get]
 func (app *application) ListPowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	powerbanks, err := app.models.Powerbank.List()
 	if err != nil {

@@ -50,6 +50,20 @@ type application struct {
 	mongoClient *mongo.Client
 }
 
+// @title QRent API
+// @version 1.0
+// @description API для работы с организациями, повербанками и станциями.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:4000
+// @BasePath /v1
 func main() {
 	if err := godotenv.Load(); err != nil {
 		log.Fatal("Ошибка загрузки .env файла: ", err)
@@ -170,7 +184,7 @@ func redisConnect() (*redis.Client, error) {
 func connectMongoDB() (*mongo.Client, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017/sporthub_logs")
+	mongoURI := getEnv("MONGO_URI", "mongodb://mongo:27017/qrent_logs")
 	clientOptions := options.Client().ApplyURI(mongoURI)
 	clientOptions.SetAuth(options.Credential{
 		Username:      getEnv("MONGO_USERNAME", "olzzhas"),
@@ -230,7 +244,7 @@ func (app *application) consumeLogsFromRabbitMQ() {
 		}
 
 		// Динамически выбираем коллекцию
-		mongoCollection := app.mongoClient.Database("sporthub_logs").Collection(logMessage.Collection)
+		mongoCollection := app.mongoClient.Database("qrent_logs").Collection(logMessage.Collection)
 
 		_, err = mongoCollection.InsertOne(context.TODO(), logMessage)
 		if err != nil {

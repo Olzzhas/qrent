@@ -2,6 +2,7 @@ package main
 
 import (
 	"expvar"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -15,6 +16,9 @@ func (app *application) routes() http.Handler {
 
 	router.HandlerFunc(http.MethodGet, "/v1/healthcheck", app.healthcheckHandler)
 	router.Handler(http.MethodGet, "/debug", expvar.Handler())
+
+	// Swagger документация: маршрут /swagger/*any
+	router.HandlerFunc(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
 
 	// Organization routes.
 	router.HandlerFunc(http.MethodGet, "/v1/organizations", app.ListOrganizationHandler)
