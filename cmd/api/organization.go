@@ -42,7 +42,7 @@ func (app *application) GetOrganizationHandler(w http.ResponseWriter, r *http.Re
 // @Tags organizations
 // @Accept json
 // @Produce json
-// @Param organization body struct{ Name string; Location string } true "Organization Data"
+// @Param organization body CreateOrganizationRequest true "Organization Data"
 // @Success 201 {object} OrganizationResponse
 // @Failure 400 {object} map[string]string
 // @Failure 422 {object} map[string]string
@@ -88,12 +88,7 @@ func (app *application) CreateOrganizationHandler(w http.ResponseWriter, r *http
 // @Accept json
 // @Produce json
 // @Param id path int true "Organization ID"
-//
-//	@Param organization body struct {
-//	    Name     *string ` + "`json:\"name\"`" + `
-//	    Location *string ` + "`json:\"location\"`" + `
-//	} true "Organization Data"
-//
+// @Param organization body UpdateOrganizationRequest true "Organization Data"
 // @Success 200 {object} OrganizationResponse
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string

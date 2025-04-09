@@ -2,6 +2,7 @@ package main
 
 import (
 	"expvar"
+	_ "github.com/olzzhas/qrent/docs"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 

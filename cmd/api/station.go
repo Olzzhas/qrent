@@ -9,7 +9,7 @@ import (
 
 // GetStationHandler godoc
 // @Summary Получает станцию по ID
-// @Description Возвращает станцию по переданному идентификатору
+// @Description Возвращает станцию по идентификатору
 // @Tags stations
 // @Accept json
 // @Produce json
@@ -43,7 +43,7 @@ func (app *application) GetStationHandler(w http.ResponseWriter, r *http.Request
 // @Tags stations
 // @Accept json
 // @Produce json
-// @Param station body struct{ OrgID int } true "Station Data"
+// @Param station body CreateStationRequest true "Station Data"
 // @Success 201 {object} StationResponse
 // @Failure 400 {object} map[string]string
 // @Failure 422 {object} map[string]string
@@ -87,7 +87,7 @@ func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Requ
 // @Accept json
 // @Produce json
 // @Param id path int true "Station ID"
-// @Param station body struct{ OrgID *int } true "Station Data"
+// @Param station body UpdateStationRequest true "Station Data"
 // @Success 200 {object} StationResponse
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string

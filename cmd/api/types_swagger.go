@@ -40,3 +40,45 @@ type StationResponse struct {
 type StationListResponse struct {
 	Stations []data.Station `json:"stations"`
 }
+
+// requests
+
+// Organization
+
+// CreateOrganizationRequest описывает тело запроса для создания организации.
+type CreateOrganizationRequest struct {
+	Name     string `json:"name"`
+	Location string `json:"location"`
+}
+
+// UpdateOrganizationRequest описывает тело запроса для обновления организации.
+type UpdateOrganizationRequest struct {
+	Name     *string `json:"name"`
+	Location *string `json:"location"`
+}
+
+// Powerbank
+
+// CreatePowerbankRequest описывает тело запроса для создания повербанка.
+type CreatePowerbankRequest struct {
+	CurrentStationID int    `json:"current_station_id"`
+	Status           string `json:"status"`
+}
+
+// UpdatePowerbankRequest описывает тело запроса для обновления повербанка.
+type UpdatePowerbankRequest struct {
+	CurrentStationID *int    `json:"current_station_id"`
+	Status           *string `json:"status"`
+}
+
+// Station
+
+// CreateStationRequest описывает тело запроса для создания станции.
+type CreateStationRequest struct {
+	OrgID int `json:"org_id"`
+}
+
+// UpdateStationRequest описывает тело запроса для обновления станции.
+type UpdateStationRequest struct {
+	OrgID *int `json:"org_id"`
+}

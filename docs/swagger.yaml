@@ -1,0 +1,608 @@
+definitions:
+  data.Organization:
+    properties:
+      id:
+        type: integer
+      location:
+        type: string
+      name:
+        type: string
+    type: object
+  data.Powerbank:
+    properties:
+      current_station_id:
+        type: integer
+      id:
+        type: integer
+      status:
+        $ref: '#/definitions/data.PowerbankStatus'
+    type: object
+  data.PowerbankStatus:
+    enum:
+    - rented
+    - available
+    - charging
+    type: string
+    x-enum-varnames:
+    - PowerbankStatusRented
+    - PowerbankStatusAvailable
+    - PowerbankStatusCharging
+  data.Station:
+    properties:
+      id:
+        type: integer
+      org_id:
+        type: integer
+    type: object
+  main.CreateOrganizationRequest:
+    properties:
+      location:
+        type: string
+      name:
+        type: string
+    type: object
+  main.CreatePowerbankRequest:
+    properties:
+      current_station_id:
+        type: integer
+      status:
+        type: string
+    type: object
+  main.CreateStationRequest:
+    properties:
+      org_id:
+        type: integer
+    type: object
+  main.MessageResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  main.OrganizationListResponse:
+    properties:
+      organizations:
+        items:
+          $ref: '#/definitions/data.Organization'
+        type: array
+    type: object
+  main.OrganizationResponse:
+    properties:
+      organization:
+        $ref: '#/definitions/data.Organization'
+    type: object
+  main.PowerbankListResponse:
+    properties:
+      powerbanks:
+        items:
+          $ref: '#/definitions/data.Powerbank'
+        type: array
+    type: object
+  main.PowerbankResponse:
+    properties:
+      powerbank:
+        $ref: '#/definitions/data.Powerbank'
+    type: object
+  main.StationListResponse:
+    properties:
+      stations:
+        items:
+          $ref: '#/definitions/data.Station'
+        type: array
+    type: object
+  main.StationResponse:
+    properties:
+      station:
+        $ref: '#/definitions/data.Station'
+    type: object
+  main.UpdateOrganizationRequest:
+    properties:
+      location:
+        type: string
+      name:
+        type: string
+    type: object
+  main.UpdatePowerbankRequest:
+    properties:
+      current_station_id:
+        type: integer
+      status:
+        type: string
+    type: object
+  main.UpdateStationRequest:
+    properties:
+      org_id:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /organizations:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает все организации
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.OrganizationListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Возвращает список организаций
+      tags:
+      - organizations
+    post:
+      consumes:
+      - application/json
+      description: Создаёт организацию с заданными name и location
+      parameters:
+      - description: Organization Data
+        in: body
+        name: organization
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.OrganizationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создаёт новую организацию
+      tags:
+      - organizations
+  /organizations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет организацию с заданным идентификатором
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаляет организацию по ID
+      tags:
+      - organizations
+    get:
+      consumes:
+      - application/json
+      description: Возвращает организацию по переданному идентификатору
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.OrganizationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получает организацию по ID
+      tags:
+      - organizations
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные организации. Обновляются только переданные поля.
+      parameters:
+      - description: Organization ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Organization Data
+        in: body
+        name: organization
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateOrganizationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.OrganizationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновляет организацию по ID
+      tags:
+      - organizations
+  /powerbanks:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает все повербанки
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.PowerbankListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Возвращает список повербанков
+      tags:
+      - powerbanks
+    post:
+      consumes:
+      - application/json
+      description: Создаёт повербанк с заданными current_station_id и status
+      parameters:
+      - description: Powerbank Data
+        in: body
+        name: powerbank
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreatePowerbankRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.PowerbankResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создаёт новый повербанк
+      tags:
+      - powerbanks
+  /powerbanks/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет повербанк с заданным идентификатором
+      parameters:
+      - description: Powerbank ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаляет повербанк по ID
+      tags:
+      - powerbanks
+    get:
+      consumes:
+      - application/json
+      description: Возвращает повербанк по переданному идентификатору
+      parameters:
+      - description: Powerbank ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.PowerbankResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получает повербанк по ID
+      tags:
+      - powerbanks
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные повербанка. Обновляются только переданные поля.
+      parameters:
+      - description: Powerbank ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Powerbank Data
+        in: body
+        name: powerbank
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdatePowerbankRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.PowerbankResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновляет повербанк по ID
+      tags:
+      - powerbanks
+  /stations:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает все станции
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.StationListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Возвращает список станций
+      tags:
+      - stations
+    post:
+      consumes:
+      - application/json
+      description: Создаёт станцию, привязанную к организации (org_id)
+      parameters:
+      - description: Station Data
+        in: body
+        name: station
+        required: true
+        schema:
+          $ref: '#/definitions/main.CreateStationRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/main.StationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Создаёт новую станцию
+      tags:
+      - stations
+  /stations/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет станцию с заданным идентификатором
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.MessageResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Удаляет станцию по ID
+      tags:
+      - stations
+    get:
+      consumes:
+      - application/json
+      description: Возвращает станцию по идентификатору
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.StationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Получает станцию по ID
+      tags:
+      - stations
+    put:
+      consumes:
+      - application/json
+      description: Обновляет данные станции. Обновляются только переданные поля.
+      parameters:
+      - description: Station ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Station Data
+        in: body
+        name: station
+        required: true
+        schema:
+          $ref: '#/definitions/main.UpdateStationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/main.StationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "422":
+          description: Unprocessable Entity
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Обновляет станцию по ID
+      tags:
+      - stations
+swagger: "2.0"

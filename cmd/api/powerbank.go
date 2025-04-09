@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"github.com/olzzhas/qrent/internal/data"
 	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
@@ -43,12 +42,7 @@ func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Reque
 // @Tags powerbanks
 // @Accept json
 // @Produce json
-//
-//	@Param powerbank body struct{
-//	    CurrentStationID int   ` + "`json:\"current_station_id\"`" + `
-//	    Status           string` + "`json:\"status\"`" + `
-//	} true "Powerbank Data"
-//
+// @Param powerbank body CreatePowerbankRequest true "Powerbank Data"
 // @Success 201 {object} PowerbankResponse
 // @Failure 400 {object} map[string]string
 // @Failure 422 {object} map[string]string
@@ -67,11 +61,6 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 	p := &data.Powerbank{
 		CurrentStationID: input.CurrentStationID,
 		Status:           data.PowerbankStatus(input.Status),
-	}
-
-	if !p.Status.IsValid() {
-		app.badRequestResponse(w, r, errors.New("invalid powerbank status"))
-		return
 	}
 
 	v := validator.New()
@@ -100,12 +89,7 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 // @Accept json
 // @Produce json
 // @Param id path int true "Powerbank ID"
-//
-//	@Param powerbank body struct{
-//	    CurrentStationID *int    ` + "`json:\"current_station_id\"`" + `
-//	    Status           *string ` + "`json:\"status\"`" + `
-//	} true "Powerbank Data"
-//
+// @Param powerbank body UpdatePowerbankRequest true "Powerbank Data"
 // @Success 200 {object} PowerbankResponse
 // @Failure 400 {object} map[string]string
 // @Failure 404 {object} map[string]string
@@ -140,10 +124,6 @@ func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Re
 
 	if input.Status != nil {
 		newStatus := data.PowerbankStatus(*input.Status)
-		if !newStatus.IsValid() {
-			app.badRequestResponse(w, r, errors.New("invalid powerbank status"))
-			return
-		}
 		p.Status = newStatus
 	}
 
