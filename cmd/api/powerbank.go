@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/olzzhas/qrent/internal/data"
 	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
@@ -14,8 +15,9 @@ import (
 // @Produce json
 // @Param id path int true "Powerbank ID"
 // @Success 200 {object} PowerbankResponse
-// @Failure 400 {object} map[string]string
-// @Failure 404 {object} map[string]string
+// @Failure 400 {object} ErrorResponse "invalid id parameter"
+// @Failure 404 {object} ErrorResponse "the requested resource could not be found"
+// @Failure 500 {object} ErrorResponse "the server encountered a problem and could not process your request"
 // @Router /powerbanks/{id} [get]
 func (app *application) GetPowerbankHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
@@ -72,6 +74,10 @@ func (app *application) CreatePowerbankHandler(w http.ResponseWriter, r *http.Re
 
 	// Вставка нового повербанка в базу.
 	if err := app.models.Powerbank.Insert(p); err != nil {
+		if errors.As(data.ErrInvalidForeignKey, &err) {
+			app.badRequestResponse(w, r, err)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -135,6 +141,10 @@ func (app *application) UpdatePowerbankHandler(w http.ResponseWriter, r *http.Re
 	}
 
 	if err := app.models.Powerbank.Update(p); err != nil {
+		if errors.As(data.ErrInvalidForeignKey, &err) {
+			app.badRequestResponse(w, r, err)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}

@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	ErrRecordNotFound = errors.New("record not found")
-	ErrEditConflict   = errors.New("edit conflict")
+	ErrInvalidForeignKey = errors.New("invalid foreign key: related record does not exist")
+	ErrRecordNotFound    = errors.New("record not found")
 )
 
 type Models struct {

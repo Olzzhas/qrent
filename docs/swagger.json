@@ -1,8 +1,22 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "description": "API для работы с организациями, повербанками и станциями.",
+        "title": "QRent API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "API Support",
+            "url": "http://www.swagger.io/support",
+            "email": "support@swagger.io"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0"
     },
+    "host": "localhost:4000",
+    "basePath": "/v1",
     "paths": {
         "/organizations": {
             "get": {
@@ -362,21 +376,21 @@
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "invalid id parameter",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/main.ErrorResponse"
                         }
                     },
                     "404": {
-                        "description": "Not Found",
+                        "description": "the requested resource could not be found",
                         "schema": {
-                            "type": "object",
-                            "additionalProperties": {
-                                "type": "string"
-                            }
+                            "$ref": "#/definitions/main.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "the server encountered a problem and could not process your request",
+                        "schema": {
+                            "$ref": "#/definitions/main.ErrorResponse"
                         }
                     }
                 }
@@ -747,6 +761,9 @@
         "data.Organization": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -755,12 +772,18 @@
                 },
                 "name": {
                     "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
         "data.Powerbank": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "current_station_id": {
                     "type": "integer"
                 },
@@ -769,6 +792,9 @@
                 },
                 "status": {
                     "$ref": "#/definitions/data.PowerbankStatus"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -788,11 +814,17 @@
         "data.Station": {
             "type": "object",
             "properties": {
+                "created_at": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
                 "org_id": {
                     "type": "integer"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },
@@ -823,6 +855,14 @@
             "properties": {
                 "org_id": {
                     "type": "integer"
+                }
+            }
+        },
+        "main.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
                 }
             }
         },

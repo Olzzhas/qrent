@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"github.com/olzzhas/qrent/pkg/validator"
 	"net/http"
 
@@ -70,6 +71,10 @@ func (app *application) CreateStationHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := app.models.Station.Insert(station); err != nil {
+		if errors.As(data.ErrInvalidForeignKey, &err) {
+			app.badRequestResponse(w, r, err)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}
@@ -127,6 +132,10 @@ func (app *application) UpdateStationHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	if err := app.models.Station.Update(station); err != nil {
+		if errors.As(data.ErrInvalidForeignKey, &err) {
+			app.badRequestResponse(w, r, err)
+			return
+		}
 		app.serverErrorResponse(w, r, err)
 		return
 	}

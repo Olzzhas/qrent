@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/lib/pq"
 	"github.com/olzzhas/qrent/pkg/validator"
 	"time"
 )
@@ -61,7 +62,7 @@ func (m PowerbankModel) ClarifyStatus(id int) (PowerbankStatus, error) {
 	err := m.DB.QueryRowContext(ctx, query, id).Scan(&status)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return "", fmt.Errorf("powerbank с id %d не найден", id)
+			return "", ErrRecordNotFound
 		}
 		return "", err
 	}
@@ -82,8 +83,17 @@ func (m PowerbankModel) Insert(p *Powerbank) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRowContext(ctx, query, p.CurrentStationID, p.Status).
+	err := m.DB.QueryRowContext(ctx, query, p.CurrentStationID, p.Status).
 		Scan(&p.ID, &p.CreatedAt, &p.UpdatedAt)
+	if err != nil {
+		var pgerr *pq.Error
+		if errors.As(err, &pgerr) && pgerr.Code == "23503" {
+			return ErrInvalidForeignKey
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (m PowerbankModel) Get(id int) (*Powerbank, error) {
@@ -113,19 +123,22 @@ func (m PowerbankModel) Update(p *Powerbank) error {
 		UPDATE powerbanks
 		SET current_station_id = $1,
 			status = $2,
-			updated_at = NOW()  -- Если у вас стоит триггер, можно просто RETURNING updated_at
+			updated_at = NOW()
 		WHERE id = $3
 		RETURNING updated_at
 	`
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query,
-		p.CurrentStationID, p.Status, p.ID,
-	).Scan(&p.UpdatedAt)
+	err := m.DB.QueryRowContext(ctx, query, p.CurrentStationID, p.Status, p.ID).
+		Scan(&p.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return fmt.Errorf("powerbank с id %d не найден", p.ID)
+			return fmt.Errorf("powerbank with id %d not found", p.ID)
+		}
+		var pgerr *pq.Error
+		if errors.As(err, &pgerr) && pgerr.Code == "23503" {
+			return ErrInvalidForeignKey
 		}
 		return err
 	}

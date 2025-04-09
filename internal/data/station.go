@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/go-redis/redis/v8"
+	"github.com/lib/pq"
 	"github.com/olzzhas/qrent/pkg/validator"
 	"time"
 )
@@ -35,8 +36,17 @@ func (m StationModel) Insert(station *Station) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	return m.DB.QueryRowContext(ctx, query, station.OrgID).
+	err := m.DB.QueryRowContext(ctx, query, station.OrgID).
 		Scan(&station.ID, &station.CreatedAt, &station.UpdatedAt)
+	if err != nil {
+		var pgerr *pq.Error
+		if errors.As(err, &pgerr) && pgerr.Code == "23503" {
+			return ErrInvalidForeignKey
+		}
+		return err
+	}
+
+	return nil
 }
 
 func (m StationModel) Get(id int) (*Station, error) {
@@ -65,20 +75,24 @@ func (m StationModel) Update(station *Station) error {
 	query := `
         UPDATE stations
         SET org_id = $1,
-            updated_at = NOW() -- или полагайтесь на триггер, если он есть
+            updated_at = NOW()
         WHERE id = $2
         RETURNING updated_at
     `
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := m.DB.QueryRowContext(ctx, query, station.OrgID, station.ID).
-		Scan(&station.UpdatedAt)
+	err := m.DB.QueryRowContext(ctx, query, station.OrgID, station.ID).Scan(&station.UpdatedAt)
 	if err != nil {
-		// Если строка не найдена, будет sql.ErrNoRows
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("no station found with id %d", station.ID)
 		}
+
+		var pgerr *pq.Error
+		if errors.As(err, &pgerr) && pgerr.Code == "23503" {
+			return ErrInvalidForeignKey
+		}
+
 		return err
 	}
 

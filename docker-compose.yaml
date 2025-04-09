@@ -73,12 +73,12 @@ services:
       - dev
   
   swagger:
-    image: golang:1.22-alpine
+    image: golang:1.24.2-alpine
     container_name: qrent_swagger
     working_dir: /app
     volumes:
       - .:/app
-    command: [ "sh", "-c", "go install github.com/swaggo/swag/cmd/swag@latest && swag init" ]
+    command: [ "sh", "-c", "go install github.com/swaggo/swag/cmd/swag@latest && swag init -g cmd/api/main.go" ]
     depends_on:
       - qrent
     networks:

@@ -1,21 +1,30 @@
+basePath: /v1
 definitions:
   data.Organization:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       location:
         type: string
       name:
         type: string
+      updated_at:
+        type: string
     type: object
   data.Powerbank:
     properties:
+      created_at:
+        type: string
       current_station_id:
         type: integer
       id:
         type: integer
       status:
         $ref: '#/definitions/data.PowerbankStatus'
+      updated_at:
+        type: string
     type: object
   data.PowerbankStatus:
     enum:
@@ -29,10 +38,14 @@ definitions:
     - PowerbankStatusCharging
   data.Station:
     properties:
+      created_at:
+        type: string
       id:
         type: integer
       org_id:
         type: integer
+      updated_at:
+        type: string
     type: object
   main.CreateOrganizationRequest:
     properties:
@@ -52,6 +65,11 @@ definitions:
     properties:
       org_id:
         type: integer
+    type: object
+  main.ErrorResponse:
+    properties:
+      error:
+        type: string
     type: object
   main.MessageResponse:
     properties:
@@ -113,8 +131,19 @@ definitions:
       org_id:
         type: integer
     type: object
+host: localhost:4000
 info:
-  contact: {}
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: API для работы с организациями, повербанками и станциями.
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+  termsOfService: http://swagger.io/terms/
+  title: QRent API
+  version: "1.0"
 paths:
   /organizations:
     get:
@@ -384,17 +413,18 @@ paths:
           schema:
             $ref: '#/definitions/main.PowerbankResponse'
         "400":
-          description: Bad Request
+          description: invalid id parameter
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/main.ErrorResponse'
         "404":
-          description: Not Found
+          description: the requested resource could not be found
           schema:
-            additionalProperties:
-              type: string
-            type: object
+            $ref: '#/definitions/main.ErrorResponse'
+        "500":
+          description: the server encountered a problem and could not process your
+            request
+          schema:
+            $ref: '#/definitions/main.ErrorResponse'
       summary: Получает повербанк по ID
       tags:
       - powerbanks

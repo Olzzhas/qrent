@@ -82,3 +82,9 @@ type CreateStationRequest struct {
 type UpdateStationRequest struct {
 	OrgID *int `json:"org_id"`
 }
+
+// ErrorResponse описывает ответ с ошибкой.
+// swagger:model
+type ErrorResponse struct {
+	Error string `json:"error"`
+}

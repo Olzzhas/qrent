@@ -75,11 +75,9 @@ func (m OrganizationModel) Update(org *Organization) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	// Выполняем UPDATE и считываем новое updated_at.
 	err := m.DB.QueryRowContext(ctx, query, org.Name, org.Location, org.ID).
 		Scan(&org.UpdatedAt)
 	if err != nil {
-		// Если строка не найдена, будет sql.ErrNoRows => можно проверить и вернуть свою ошибку.
 		if errors.Is(err, sql.ErrNoRows) {
 			return fmt.Errorf("no organization found with id %d", org.ID)
 		}
